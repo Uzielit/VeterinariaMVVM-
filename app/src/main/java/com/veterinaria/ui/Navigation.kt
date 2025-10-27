@@ -32,13 +32,15 @@ fun Navigation (){
             LoginScreen(loginViewModel,navController)
 
         }
-        composable("forgot_Pasword") {
-            ForgotPasswordScreen(navController)
+        composable("forgot_password") {
+            ForgotPasswordScreen(forgot,navController)
 
         }
         composable("register") {
-            RegisterScreen(navController)
-
+            RegisterScreen(register,navController)
+        }
+        composable("pets"){
+            PetsScreen(pets,navController)
         }
     }
 
