@@ -25,9 +25,3 @@ fun Image(imageRes: Int, size: Int = 100) {
             .border(border = BorderStroke(1.dp, Color.Black), shape = CircleShape)
     )
 }
-
-@Preview(showBackground = true)
-@Composable
-fun preview (){
-    Image()
-}

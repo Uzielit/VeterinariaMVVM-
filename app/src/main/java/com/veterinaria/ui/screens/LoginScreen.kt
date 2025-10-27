@@ -12,10 +12,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.veterinaria.R
+import com.veterinaria.ui.Navigation
+import com.veterinaria.ui.components.buttons.PrimaryButton
 import com.veterinaria.ui.components.images.Image
+import com.veterinaria.ui.components.inputs.PasswordField
+import com.veterinaria.ui.components.inputs.UserInputField
+import com.veterinaria.ui.components.text.Link
 import com.veterinaria.viewmodel.LoginViewModel
 
 @Composable
@@ -64,3 +70,4 @@ fun LoginScreen(viewModel: LoginViewModel, navController: NavController) {
 
     }
 }
+
