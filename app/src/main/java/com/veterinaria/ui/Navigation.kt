@@ -27,7 +27,7 @@ fun Navigation (){
     val pets : PetsViewModel = viewModel()
     val register : RegisterViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = "Login") {
+    NavHost(navController = navController, startDestination = "Edit") {
         composable("Login") {
             LoginScreen(loginViewModel,navController)
 
@@ -39,6 +39,10 @@ fun Navigation (){
         composable("register") {
             RegisterScreen(navController)
 
+        }
+        composable("Edit") {
+            // Le pasamos el ViewModel que ya inicializaste arriba
+            EditPetsScreen(editPets, navController)
         }
     }
 
