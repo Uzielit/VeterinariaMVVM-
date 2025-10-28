@@ -42,7 +42,7 @@ import com.veterinaria.viewmodel.EditPetsViewModel
 @Composable
 fun EditPetsScreen (editPets: EditPetsViewModel, navController: NavController){
 
-    // --- Estados para cada campo ---
+    //cambios
     // En una app real, estos valores vendrían de la mascota que estás editando.
     var petName by remember { mutableStateOf("Nombre Actual") }
     var breed by remember { mutableStateOf("Raza Actual") }
