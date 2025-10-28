@@ -27,14 +27,15 @@ fun Navigation (){
     val pets : PetsViewModel = viewModel()
     val register : RegisterViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = "Login") {
+    NavHost(navController = navController, startDestination = "ForgotPassword") {
         composable("Login") {
             LoginScreen(loginViewModel,navController)
 
         }
-        composable("forgot_password") {
-            ForgotPasswordScreen(forgot,navController)
-
+        composable("Forgotpassword") {
+            // 3. CORRECCIÓN: Así se llama la pantalla que acabamos de arreglar.
+            //    Ella sola obtendrá su ViewModel.
+            ForgotPasswordScreen(navController = navController)
         }
         composable("register") {
             RegisterScreen(register,navController)
@@ -42,10 +43,10 @@ fun Navigation (){
         composable("pets"){
             PetsScreen(pets,navController)
         }
-        composable("pets") {
-            PetsScreen(pets, navController)
+        composable("Edit") {
+            // Le pasamos el ViewModel que ya inicializaste arriba
+            EditPetsScreen(editPets, navController)
         }
-
     }
 
 }
