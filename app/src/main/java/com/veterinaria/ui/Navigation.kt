@@ -42,6 +42,10 @@ fun Navigation (){
         composable("pets"){
             PetsScreen(pets,navController)
         }
+        composable("pets") {
+            PetsScreen(pets, navController)
+        }
+
     }
 
 }
