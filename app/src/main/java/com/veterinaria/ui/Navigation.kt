@@ -38,7 +38,7 @@ fun Navigation (){
             ForgotPasswordScreen(navController = navController)
         }
         composable("register") {
-            RegisterScreen(register,navController)
+            RegisterScreen(navController)
         }
         composable("pets"){
             PetsScreen(pets,navController)
