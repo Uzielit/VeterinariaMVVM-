@@ -8,8 +8,8 @@ import androidx.room.PrimaryKey
     data class Mascota(
         @PrimaryKey(autoGenerate = true)
         val id: Int,
-        val imagen : Int,
-        val nombre: String,
+        val imagen : String,
+        val imageUrl: String?,
         val especie: String,
         val edad: Int,
         val vacunado: Boolean,

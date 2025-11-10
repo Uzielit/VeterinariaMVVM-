@@ -18,7 +18,6 @@ interface MascotaDao {
     @Query ( "SELECT * FROM MASCOTAS WHERE id = :id")
     suspend fun getPetById(id: Int): Mascota?
 
-
     //CREATE
     @Insert()
     suspend fun insertPet(pet: Mascota)
