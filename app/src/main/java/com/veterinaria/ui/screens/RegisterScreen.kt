@@ -107,7 +107,7 @@ private fun RegistrationHeaderVisual(navController: NavController) {
             tint = Color.Black
         )
         Spacer(Modifier.width(8.dp))
-        Text(text = "Volver al Inicio")
+
     }
 }
 

@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 fun Image(imageRes: Int, size: Int = 100) {
     Image(
         painter = painterResource(id = imageRes),
-        contentDescription = "Imagen circular",
+        contentDescription = "Imagen ",
         contentScale = ContentScale.Crop,
         modifier = Modifier
             .size(size.dp)

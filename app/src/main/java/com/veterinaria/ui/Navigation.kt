@@ -45,7 +45,7 @@ fun Navigation (){
         }
         composable("Edit") {
             // Le pasamos el ViewModel que ya inicializaste arriba
-            EditPetsScreen(editPets, navController)
+            EditPetsScreen( navController)
         }
         composable( "infoPets"){
             InfoPetsScreen(navController)

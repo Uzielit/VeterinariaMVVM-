@@ -8,7 +8,7 @@ import kotlin.jvm.java
 
 
 //Base de datos
-@Database(entities = [Mascota::class], version = 1, exportSchema = false)
+@Database(entities = [Mascota::class], version = 1)
 abstract class MascotaDatabase : RoomDatabase() {
 
     // Provee el DAO para ser usado por el Repositorio
@@ -29,6 +29,8 @@ abstract class MascotaDatabase : RoomDatabase() {
                     MascotaDatabase::class.java,
                     "veterinaria_database"
                 )
+                    // la creará de nuevo con la nueva estructura.
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

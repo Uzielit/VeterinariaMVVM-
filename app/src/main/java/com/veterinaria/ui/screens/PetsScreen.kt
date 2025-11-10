@@ -14,8 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.veterinaria.R
 
 
@@ -129,5 +131,15 @@ fun PetCard(mascota: Mascota) {
                 Text(text = "Edad: ${mascota.edad}")
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PetsScreenPreview() {
+    // En la previsualización, creamos un NavController de prueba que no hace nada.
+    val navController = rememberNavController()
+    MaterialTheme { // Envuelve la preview en un tema para que los estilos se apliquen correctamente
+        PetsScreen(viewModel = null, navController = navController)
     }
 }

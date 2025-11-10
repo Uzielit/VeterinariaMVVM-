@@ -24,7 +24,7 @@ interface MascotaDao {
 
 //Delete
     @Query("DELETE FROM MASCOTAS WHERE id = :id")
-    suspend fun deletePet(pet: Mascota)
+    suspend fun deletePet(id: Int)
 //Update
 @Update
 suspend fun updatePet(pet: Mascota)
