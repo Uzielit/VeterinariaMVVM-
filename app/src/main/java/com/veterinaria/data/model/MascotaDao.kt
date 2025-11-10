@@ -1,6 +1,7 @@
 package com.veterinaria.data.model
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -23,8 +24,8 @@ interface MascotaDao {
     suspend fun insertPet(pet: Mascota)
 
 //Delete
-    @Query("DELETE FROM MASCOTAS WHERE id = :id")
-    suspend fun deletePet(id: Int)
+@Delete
+suspend fun deletePet(pet: Mascota)
 //Update
 @Update
 suspend fun updatePet(pet: Mascota)
