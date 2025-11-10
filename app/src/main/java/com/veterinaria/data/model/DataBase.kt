@@ -8,7 +8,7 @@ import kotlin.jvm.java
 
 
 //Base de datos
-@Database(entities = [Mascota::class], version = 1)
+@Database(entities = [Mascota::class], version = 2)
 abstract class MascotaDatabase : RoomDatabase() {
 
     // Provee el DAO para ser usado por el Repositorio

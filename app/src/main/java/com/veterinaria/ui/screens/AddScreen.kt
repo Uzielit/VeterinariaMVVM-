@@ -1,8 +1,17 @@
-package com.veterinaria.ui.screens // El paquete que indicaste
+package com.veterinaria.ui.screens
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+
+
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -12,139 +21,129 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.veterinaria.data.repository.RepositoryMascota
+import com.veterinaria.viewmodel.AddViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NuevoRegistroScreen(navController: NavController) {
-
-    // Estados para los campos del formulario
+fun AddScreen(
+    viewModel: AddViewModel,
+    onNavigateBack: () -> Unit
+) {
+    // --- Estados para el Formulario ---
     var nombre by remember { mutableStateOf("") }
-    var raza by remember { mutableStateOf("") }
-    var fecha by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf("") }
+    var vacunado by remember { mutableStateOf(false) }
 
-    // --- Estado para el dropdown de Vacunas ---
-    var vacunasExpanded by remember { mutableStateOf(false) }
-    var vacunasSelected by remember { mutableStateOf("") }
-    // Opciones de ejemplo, puedes cambiarlas
-    val vacunasOptions = listOf("Sí, todas", "No, ninguna", "Algunas pendientes")
-
-    // --- Estado para el dropdown de Especie ---
+    // --- Estado para el Dropdown de Especie ---
     var especieExpanded by remember { mutableStateOf(false) }
     var especieSelected by remember { mutableStateOf("") }
-    // Opciones de ejemplo, puedes cambiarlas
     val especieOptions = listOf("Perro", "Gato", "Ave", "Reptil", "Otro")
+
+    // --- Estados para el DatePicker Moderno ---
+    var showDatePicker by remember { mutableStateOf(false) }
+    // Almacena la fecha como Long (milisegundos), igual que en Mascota.kt
+    var fechaNacimiento by remember { mutableStateOf<Long?>(null) }
+    val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+
+    // Contexto para Toasts (mensajes de error)
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                // Título de la barra superior según el wireframe
-                title = { Text("Nombre usuario") },
+                title = { Text("Nueva Mascota", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Regresar"
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
             )
         }
-    ) { paddingValues ->
+    ) { padding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 30.dp, vertical = 10.dp) // Padding del diseño
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(padding)
+                .padding(horizontal = 24.dp) // Más padding lateral (estilo Adidas)
+                .verticalScroll(rememberScrollState())
         ) {
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Título principal dentro del contenido
+            // --- Placeholder de Foto Moderno ---
             Text(
-                text = "NUEVO REGISTRO",
-                style = MaterialTheme.typography.headlineMedium,
+                text = "Foto de la Mascota",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(
                 modifier = Modifier
-                    .align(Alignment.Start) // Alineado a la izquierda como en el wireframe
-                    .padding(vertical = 16.dp)
-            )
-
-            // Campo de texto para Nombre
-            OutlinedTextField(
-                value = nombre,
-                onValueChange = { nombre = it },
-                label = { Text("Nombre(Mascota)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Campo de texto para Raza
-            OutlinedTextField(
-                value = raza,
-                onValueChange = { raza = it },
-                label = { Text("Raza") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Campo de texto para Fecha (con ícono)
-            OutlinedTextField(
-                value = fecha,
-                onValueChange = { fecha = it },
-                label = { Text("Fecha (Nacimiento)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                placeholder = { Text("DD/MM/AAAA") },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Seleccionar fecha"
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(
+                        BorderStroke(
+                            2.dp,
+                            MaterialTheme.colorScheme.outlineVariant
+                        ),
+                        RoundedCornerShape(12.dp)
                     )
-                }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // --- Dropdown para Vacunas ---
-            ExposedDropdownMenuBox(
-                expanded = vacunasExpanded,
-                onExpandedChange = { vacunasExpanded = !vacunasExpanded },
-                modifier = Modifier.fillMaxWidth()
+                    .clickable { /* TODO: Lógica para abrir la cámara/galería */ },
+                contentAlignment = Alignment.Center
             ) {
-                OutlinedTextField(
-                    value = vacunasSelected,
-                    onValueChange = {}, // No se puede editar manualmente
-                    readOnly = true,
-                    label = { Text("Vacunas (que han aplicado)") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = vacunasExpanded)
-                    },
-                    modifier = Modifier.fillMaxWidth().menuAnchor()
-                )
-                ExposedDropdownMenu(
-                    expanded = vacunasExpanded,
-                    onDismissRequest = { vacunasExpanded = false }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    vacunasOptions.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(option) },
-                            onClick = {
-                                vacunasSelected = option
-                                vacunasExpanded = false
-                            }
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.PhotoCamera,
+                        contentDescription = "Añadir foto",
+                        modifier = Modifier.size(48.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        "Tocar para añadir foto",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // --- Campos del Formulario ---
+            Text(
+                text = "Datos Principales",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Campo de Nombre
+            OutlinedTextField(
+                value = nombre,
+                onValueChange = { nombre = it },
+                label = { Text("Nombre de la Mascota") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
             // --- Dropdown para Especie ---
@@ -155,7 +154,7 @@ fun NuevoRegistroScreen(navController: NavController) {
             ) {
                 OutlinedTextField(
                     value = especieSelected,
-                    onValueChange = {}, // No se puede editar manualmente
+                    onValueChange = {},
                     readOnly = true,
                     label = { Text("Especie") },
                     trailingIcon = {
@@ -178,75 +177,126 @@ fun NuevoRegistroScreen(navController: NavController) {
                     }
                 }
             }
-
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- Placeholder para la Foto ---
-            Text(
-                text = "Foto",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.align(Alignment.Start)
-            )
-            Box(
+            // --- CAMPO DE FECHA CON DATEPICKER M3 ---
+            OutlinedTextField(
+                value = if (fechaNacimiento == null) "" else dateFormatter.format(fechaNacimiento),
+                onValueChange = { },
+                label = { Text("Fecha de Nacimiento") },
+                placeholder = { Text("DD/MM/AAAA") },
+                readOnly = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp) // Altura de ejemplo para el placeholder
-                    .border(1.dp, Color.Gray),
-                contentAlignment = Alignment.Center
+                    .clickable { showDatePicker = true }, // Abre el diálogo
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Seleccionar fecha"
+                    )
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Campo de Descripción
+            OutlinedTextField(
+                value = descripcion,
+                onValueChange = { descripcion = it },
+                label = { Text("Descripción o Raza") },
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 3
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // --- Switch para Vacunado (coincide con Mascota.kt) ---
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // El 'X' en el wireframe representa un placeholder.
-                // Usamos un ícono de cámara que es más común en la práctica.
-                Icon(
-                    imageVector = Icons.Default.PhotoCamera,
-                    contentDescription = "Añadir foto",
-                    modifier = Modifier.size(48.dp),
-                    tint = Color.Gray
+                Column {
+                    Text(
+                        "¿Está vacunado?",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        if (vacunado) "Sí, está al día" else "No, está pendiente",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = vacunado,
+                    onCheckedChange = { vacunado = it }
                 )
             }
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // --- Botones de Aceptar y Cancelar ---
-            Row(
+            // --- Botones de Acción ---
+            Button(
+                onClick = {
+                    // Validación simple
+                    if (nombre.isNotBlank() && especieSelected.isNotBlank() && fechaNacimiento != null) {
+                        // Llama al ViewModel para guardar en la BD
+                        viewModel.insertPet(
+                            nombre = nombre,
+                            especie = especieSelected,
+                            fechaNacimiento = fechaNacimiento!!, // Sabemos que no es null
+                            descripcion = descripcion,
+                            vacunado = vacunado,
+                            imagen = 0 // TODO: Cambiar por la imagen real
+                        )
+                        onNavigateBack() // Regresa a la pantalla anterior
+                    } else {
+                        // TODO: Mostrar un Toast o SnackBar de error
+                        // Toast.makeText(context, "Por favor, llena todos los campos", Toast.LENGTH_SHORT).show()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp), // Padding para que no peguen a los bordes
-                horizontalArrangement = Arrangement.SpaceAround // Espacio entre botones
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                // Botón de Aceptar
-                Button(
-                    onClick = {
-                        // Lógica para guardar el nuevo registro...
-                        navController.popBackStack() // Regresar
-                    },
-                    modifier = Modifier.weight(1f) // Ocupa la mitad del espacio
-                ) {
+                Text("Guardar Mascota", fontSize = 16.sp)
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = onNavigateBack,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Cancelar", fontSize = 16.sp)
+            }
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+
+    // --- DIÁLOGO DEL DATEPICKER DE MATERIAL 3 ---
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = fechaNacimiento ?: System.currentTimeMillis()
+        )
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    fechaNacimiento = datePickerState.selectedDateMillis
+                    showDatePicker = false
+                }) {
                     Text("Aceptar")
                 }
-
-                Spacer(modifier = Modifier.width(16.dp)) // Espacio entre botones
-
-                // Botón de Cancelar (usamos OutlinedButton para diferenciarlo)
-                OutlinedButton(
-                    onClick = {
-                        navController.popBackStack() // Simplemente regresar
-                    },
-                    modifier = Modifier.weight(1f) // Ocupa la otra mitad
-                ) {
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
                     Text("Cancelar")
                 }
             }
-
-            Spacer(modifier = Modifier.height(20.dp)) // Espacio al final
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 }
 
-// --- ¡AQUÍ ESTÁ EL PREVIEW! ---
-// Puedes ver el diseño en la pestaña "Split" o "Design" de Android Studio.
-@Preview(showBackground = true)
-@Composable
-fun NuevoRegistroScreenPreview() {
-    // Usamos un NavController de mentira para que el preview funcione
-    NuevoRegistroScreen(navController = rememberNavController())
-} //segundo cambio
