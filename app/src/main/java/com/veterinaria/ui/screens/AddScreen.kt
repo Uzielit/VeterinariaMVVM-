@@ -249,4 +249,4 @@ fun NuevoRegistroScreen(navController: NavController) {
 fun NuevoRegistroScreenPreview() {
     // Usamos un NavController de mentira para que el preview funcione
     NuevoRegistroScreen(navController = rememberNavController())
-}
+} //segundo cambio

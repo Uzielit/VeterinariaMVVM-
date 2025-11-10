@@ -34,15 +34,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview // Import para el Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.veterinaria.viewmodel.EditPetsViewModel
+import androidx.navigation.compose.rememberNavController // Import para el Preview
 
+// NOTA: El ViewModel se ha quitado de los parámetros para que el Preview funcione.
+// Si lo necesitas, puedes volver a añadirlo:
+// (editPets: EditPetsViewModel, navController: NavController)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditPetsScreen (editPets: EditPetsViewModel, navController: NavController){
+fun EditPetsScreen(navController: NavController) {
 
-    //
     // En una app real, estos valores vendrían de la mascota que estás editando.
     var petName by remember { mutableStateOf("Nombre Actual") }
     var breed by remember { mutableStateOf("Raza Actual") }
@@ -101,7 +104,7 @@ fun EditPetsScreen (editPets: EditPetsViewModel, navController: NavController){
                 label = { Text("Cambiar Nombre") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
-            )//ELiminare esta pantalla por una nueva
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -169,5 +172,19 @@ fun EditPetsScreen (editPets: EditPetsViewModel, navController: NavController){
 
             Spacer(modifier = Modifier.height(20.dp)) // Espacio al final
         }
+    }
+}
+
+// --- ¡AQUÍ ESTÁ EL PREVIEW! ---
+// Puedes ver el diseño en la pestaña "Split" o "Design" de Android Studio.
+@Preview(showBackground = true)
+@Composable
+fun EditPetsScreenPreview() {
+    // Usamos un NavController de mentira para que el preview funcione
+    // y envolvemos el preview en el tema de la app (opcional pero recomendado)
+    // Supongamos que tu tema se llama "VeterinariaTheme"
+    // Si no tienes un tema, puedes quitar la línea de "MaterialTheme"
+    MaterialTheme {
+        EditPetsScreen(navController = rememberNavController())
     }
 }
