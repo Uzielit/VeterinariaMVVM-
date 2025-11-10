@@ -101,7 +101,7 @@ fun EditPetsScreen (editPets: EditPetsViewModel, navController: NavController){
                 label = { Text("Cambiar Nombre") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
-            )
+            )//ELiminare esta pantalla por una nueva
 
             Spacer(modifier = Modifier.height(16.dp))
 
