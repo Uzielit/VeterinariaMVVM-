@@ -9,11 +9,10 @@ import androidx.room.PrimaryKey
     data class Mascota(
         @PrimaryKey(autoGenerate = true)
         val id: Int,
+        val nombre: String,
         val imageUrl: String?,
         val especie: String,
         val edad: Int,
-        val raza: String ,
-        val vacunado: Boolean,
-       val fechaNacimiento : DatePicker
+        val vacunado: Boolean
     )
 
