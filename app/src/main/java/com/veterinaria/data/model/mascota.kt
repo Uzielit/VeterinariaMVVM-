@@ -1,5 +1,6 @@
 package com.veterinaria.data.model
 
+import android.widget.DatePicker
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -11,7 +12,8 @@ import androidx.room.PrimaryKey
         val imageUrl: String?,
         val especie: String,
         val edad: Int,
+        val raza: String ,
         val vacunado: Boolean,
-        val descripcion: String
+       val fechaNacimiento : DatePicker
     )
 
