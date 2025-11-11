@@ -8,11 +8,11 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "mascotas")
     data class Mascota(
         @PrimaryKey(autoGenerate = true)
-        val id: Int,
+        val id: Int=0,
         val nombre: String,
         val imageUrl: String?,
         val especie: String,
-        val edad: Int,
+        val fechaNacimiento: Long,
         val vacunado: Boolean
     )
 
