@@ -126,7 +126,7 @@ private fun PetDetailsForm(
         )
         Spacer(Modifier.height(16.dp))
 
-        // Vacunas
+
         DropdownDisplayField(label = "Vacunas", option = vacunas)
         Spacer(Modifier.height(16.dp))
 

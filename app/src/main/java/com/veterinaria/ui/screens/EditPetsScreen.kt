@@ -86,6 +86,9 @@ fun EditPetsScreen(viewModel: EditPetsViewModel, navController: NavController) {
             }
         }
     )
+    //7flask
+    //python app.py
+    //install pip install nombrLibreria, python -m
 
     val scope = rememberCoroutineScope()
 
@@ -249,6 +252,7 @@ fun EditPetsScreen(viewModel: EditPetsViewModel, navController: NavController) {
                     Text("Cancelar")
                 }
             }
+
         )
     }
 }

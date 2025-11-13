@@ -54,7 +54,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddScreen(viewModel: AddViewModel, navController: NavController) {
 
-    // Observamos todos los estados del ViewModel
+
     val nombre by viewModel.nombre.collectAsState()
     val especie by viewModel.especie.collectAsState()
     val selectedImageUri by viewModel.imageUrl.collectAsState()
@@ -66,7 +66,7 @@ fun AddScreen(viewModel: AddViewModel, navController: NavController) {
     val showPreviewImagen = remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    //Abre la galeria funcion credad
+
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->

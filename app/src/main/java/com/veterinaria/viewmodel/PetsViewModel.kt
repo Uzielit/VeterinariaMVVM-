@@ -19,8 +19,8 @@ class PetsViewModel (private val repository: RepositoryMascota): ViewModel() {
     val petsUiState: StateFlow<List<Mascota>> = repository.getAllPets()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000), // Mantiene la conexión 5 seg
-            initialValue = emptyList() // Empieza con una lista vacía
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
         )
 
 
