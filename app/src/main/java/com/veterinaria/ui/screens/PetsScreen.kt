@@ -9,6 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,127 +21,57 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.veterinaria.R
+import com.veterinaria.data.model.Mascota
+import com.veterinaria.ui.components.MascotaList
+import com.veterinaria.ui.components.PetCard
+import com.veterinaria.viewmodel.PetsViewModel
 
 
-data class Mascota(
-    val nombre: String,
-    val raza: String,
-    val edad: String,
-    val imagen: Int
-)
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PetsScreen(viewModel: Any?, navController: NavController) { // viewModel no se usa aún
-    Box(modifier = Modifier.fillMaxSize()) {
+fun PetScreen(viewModel: PetsViewModel, navController: NavController) {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
 
-            Text(
-                text = "Mis mascotas",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold
-                )
+    val pets by viewModel.petsUiState.collectAsState()
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Mascotas Atendidas") }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-
-            Text(
-                text = "Nombre Usuario",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-
-            Text(
-                text = "Mascotas Registradas:",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                ),
-                modifier = Modifier.align(Alignment.Start)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-
-            val mascotas = listOf(
-                Mascota("Firulais", "Labrador", "2 años", R.drawable.firulais),
-                Mascota("Michi", "Siames", "3 años", R.drawable.michi),
-                Mascota("Rex", "Pastor Alemán", "1 año", R.drawable.rex)
-            )
-
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(mascotas) { mascota ->
-                    PetCard(mascota)
+                    navController.navigate("add_pet")
                 }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Registrar Nueva Mascota")
             }
         }
+    ) { paddingValues ->
 
-
-        FloatingActionButton(
-            onClick = { navController.navigate("add_pet") },
-            containerColor = Color(0xFF2196F3),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(20.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Agregar mascota"
-            )
-        }
-    }
-}
-
-@Composable
-fun PetCard(mascota: Mascota) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(paddingValues)
         ) {
-            // Imagen local desde drawable
-            Image(
-                painter = painterResource(id = mascota.imagen),
-                contentDescription = "Foto de ${mascota.nombre}",
-                modifier = Modifier
-                    .size(60.dp)
-                    .background(Color.LightGray)
-            )
+            if (pets.isEmpty()) {
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column {
-                Text(text = "Nombre: ${mascota.nombre}", fontWeight = FontWeight.Bold)
-                Text(text = "Raza: ${mascota.raza}")
-                Text(text = "Edad: ${mascota.edad}")
+                Text(
+                    text = "No hay mascotas registradas. Presiona '+' para agregar una.",
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                MascotaList(
+                    lista = pets,
+                    modifier = Modifier.fillMaxSize(),
+                    onPetClick = { petId ->
+                        navController.navigate("Edit/$petId")
+                    }
+                )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PetsScreenPreview() {
-    // En la previsualización, creamos un NavController de prueba que no hace nada.
-    val navController = rememberNavController()
-    MaterialTheme { // Envuelve la preview en un tema para que los estilos se apliquen correctamente
-        PetsScreen(viewModel = null, navController = navController)
     }
 }

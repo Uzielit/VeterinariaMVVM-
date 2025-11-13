@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MascotaDao {
+
 //READ
     @Query("SELECT * FROM MASCOTAS ORDER BY nombre ASC")
     fun getAllPets(): Flow<List<Mascota>>
@@ -23,9 +24,11 @@ interface MascotaDao {
     suspend fun insertPet(pet: Mascota)
 
 //Delete
-@Delete
-suspend fun deletePet(pet: Mascota)
+    @Delete
+    suspend fun deletePet(pet: Mascota)
 //Update
-@Update
-suspend fun updatePet(pet: Mascota)
+    @Update
+    suspend fun updatePet(pet: Mascota)
+
+
 }

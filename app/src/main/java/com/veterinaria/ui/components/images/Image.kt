@@ -20,6 +20,6 @@ fun Image(imageRes: Int, size: Int = 100) {
         contentScale = ContentScale.Crop,
         modifier = Modifier
             .size(size.dp)
-            .border(border = BorderStroke(1.dp, Color.Black), shape = CircleShape)
+            .border(border = BorderStroke(1.dp, Color.Black))
     )
 }

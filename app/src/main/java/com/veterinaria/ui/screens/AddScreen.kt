@@ -1,302 +1,212 @@
 package com.veterinaria.ui.screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
-
-
-
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
+import coil.compose.AsyncImage
+import com.veterinaria.data.model.MascotaDatabase
 import com.veterinaria.data.repository.RepositoryMascota
 import com.veterinaria.viewmodel.AddViewModel
-import java.text.SimpleDateFormat
-import java.util.Locale
+import com.veterinaria.ui.components.buttons.PrimaryButton
+import com.veterinaria.ui.components.buttons.CancelButton
+import com.veterinaria.ui.theme.PurpleGrey40
+import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddScreen(
-    viewModel: AddViewModel,
-    onNavigateBack: () -> Unit
-) {
-    // --- Estados para el Formulario ---
-    var nombre by remember { mutableStateOf("") }
-    var descripcion by remember { mutableStateOf("") }
-    var vacunado by remember { mutableStateOf(false) }
+fun AddScreen(viewModel: AddViewModel, navController: NavController) {
 
-    // --- Estado para el Dropdown de Especie ---
-    var especieExpanded by remember { mutableStateOf(false) }
-    var especieSelected by remember { mutableStateOf("") }
-    val especieOptions = listOf("Perro", "Gato", "Ave", "Reptil", "Otro")
+    // Observamos todos los estados del ViewModel
+    val nombre by viewModel.nombre.collectAsState()
+    val especie by viewModel.especie.collectAsState()
+    val selectedImageUri by viewModel.imageUrl.collectAsState()
+    val fechaNacimiento by viewModel.fechaNacimientoStr.collectAsState()
+    val vacunado by viewModel.vacunado.collectAsState()
 
-    // --- Estados para el DatePicker Moderno ---
-    var showDatePicker by remember { mutableStateOf(false) }
-    // Almacena la fecha como Long (milisegundos), igual que en Mascota.kt
-    var fechaNacimiento by remember { mutableStateOf<Long?>(null) }
-    val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+    val scope = rememberCoroutineScope()
 
-    // Contexto para Toasts (mensajes de error)
+    val showPreviewImagen = remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    //Abre la galeria funcion credad
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+
+            uri?.let {
+                viewModel.onImageUrlChange(it)
+            }
+        }
+    )
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nueva Mascota", fontWeight = FontWeight.Bold) },
+
+                title = { Text("Registrar Nueva Mascota") },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Regresar"
-                        )
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                }
             )
         }
-    ) { padding ->
+    )
+    { paddingValues ->
         Column(
             modifier = Modifier
-                .padding(padding)
-                .padding(horizontal = 24.dp) // Más padding lateral (estilo Adidas)
-                .verticalScroll(rememberScrollState())
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
 
-            // --- Placeholder de Foto Moderno ---
-            Text(
-                text = "Foto de la Mascota",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .border(
-                        BorderStroke(
-                            2.dp,
-                            MaterialTheme.colorScheme.outlineVariant
-                        ),
-                        RoundedCornerShape(12.dp)
-                    )
-                    .clickable { /* TODO: Lógica para abrir la cámara/galería */ },
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PhotoCamera,
-                        contentDescription = "Añadir foto",
-                        modifier = Modifier.size(48.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        "Tocar para añadir foto",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // --- Campos del Formulario ---
-            Text(
-                text = "Datos Principales",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Campo de Nombre
             OutlinedTextField(
                 value = nombre,
-                onValueChange = { nombre = it },
-                label = { Text("Nombre de la Mascota") },
+                onValueChange = viewModel::onNombreChange,
+                label = { Text("Nombre") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
             )
-            Spacer(modifier = Modifier.height(16.dp))
 
-            // --- Dropdown para Especie ---
-            ExposedDropdownMenuBox(
-                expanded = especieExpanded,
-                onExpandedChange = { especieExpanded = !especieExpanded },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedTextField(
-                    value = especieSelected,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Especie") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = especieExpanded)
-                    },
-                    modifier = Modifier.fillMaxWidth().menuAnchor()
-                )
-                ExposedDropdownMenu(
-                    expanded = especieExpanded,
-                    onDismissRequest = { especieExpanded = false }
-                ) {
-                    especieOptions.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(option) },
-                            onClick = {
-                                especieSelected = option
-                                especieExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
 
-            // --- CAMPO DE FECHA CON DATEPICKER M3 ---
             OutlinedTextField(
-                value = if (fechaNacimiento == null) "" else dateFormatter.format(fechaNacimiento),
-                onValueChange = { },
-                label = { Text("Fecha de Nacimiento") },
-                placeholder = { Text("DD/MM/AAAA") },
-                readOnly = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { showDatePicker = true }, // Abre el diálogo
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Seleccionar fecha"
-                    )
-                }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Campo de Descripción
-            OutlinedTextField(
-                value = descripcion,
-                onValueChange = { descripcion = it },
-                label = { Text("Descripción o Raza") },
+                value = especie,
+                onValueChange = viewModel::onEspecieChange,
+                label = { Text("Especie") },
                 modifier = Modifier.fillMaxWidth(),
-                maxLines = 3
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
             )
-            Spacer(modifier = Modifier.height(24.dp))
 
-            // --- Switch para Vacunado (coincide con Mascota.kt) ---
+            OutlinedTextField(
+                value = fechaNacimiento,
+                onValueChange = viewModel::onFechaNacimientoChange,
+                label = { Text("Fecha Nacimiento (dd/MM/yyyy)") },
+                modifier = Modifier.fillMaxWidth(),
+                // TODO: Reemplazar con un DatePickerDialog
+            )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        "¿Está vacunado?",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Text(
-                        if (vacunado) "Sí, está al día" else "No, está pendiente",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Switch(
+                Checkbox(
                     checked = vacunado,
-                    onCheckedChange = { vacunado = it }
+                    onCheckedChange = viewModel::onVacunadoChange
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "¿Está vacunado?")
+            }
+
+                //Mostar imagen
+            if (selectedImageUri != null) {
+                AsyncImage(
+                    model = selectedImageUri,
+                    contentDescription = "Imagen seleccionada",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
 
-            // --- Botones de Acción ---
-            Button(
-                onClick = {
-                    // Validación simple
-                    if (nombre.isNotBlank() && especieSelected.isNotBlank() && fechaNacimiento != null) {
-                        // Llama al ViewModel para guardar en la BD
-                        viewModel.insertPet(
-                            nombre = nombre,
-                            especie = especieSelected,
-                            fechaNacimiento = fechaNacimiento!!, // Sabemos que no es null
-                            descripcion = descripcion,
-                            vacunado = vacunado,
-                            imagen = 0 // TODO: Cambiar por la imagen real
-                        )
-                        onNavigateBack() // Regresa a la pantalla anterior
-                    } else {
-                        // TODO: Mostrar un Toast o SnackBar de error
-                        // Toast.makeText(context, "Por favor, llena todos los campos", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp)
+            Button(onClick = { galleryLauncher.launch("image/*")  }
             ) {
-                Text("Guardar Mascota", fontSize = 16.sp)
+               showPreviewImagen.value = true
+                Text("Seleccionar Imagen")
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = onNavigateBack,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text("Cancelar", fontSize = 16.sp)
-            }
-            Spacer(modifier = Modifier.height(32.dp))
-        }
-    }
+            Spacer(modifier = Modifier.height(16.dp))
 
-    // --- DIÁLOGO DEL DATEPICKER DE MATERIAL 3 ---
-    if (showDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = fechaNacimiento ?: System.currentTimeMillis()
-        )
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    fechaNacimiento = datePickerState.selectedDateMillis
-                    showDatePicker = false
-                }) {
-                    Text("Aceptar")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                
+                Box(modifier = Modifier.weight(1f)) {
+                    CancelButton(
+                        text = "Cancelar",
+                        onClick = { navController.popBackStack() }
+                    )
                 }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancelar")
+
+                Box(modifier = Modifier.weight(1f)) {
+                    PrimaryButton(
+                        text = "Guardar",
+                        onClick = {
+                            scope.launch {
+                                val success = viewModel.savePet(context)
+
+                                if (success) {
+                                    navController.popBackStack()
+                                }
+                            }
+
+                        }
+                    )
                 }
             }
-        ) {
-            DatePicker(state = datePickerState)
         }
     }
 }
 
+
+
+@Preview (showBackground = true)
+@Composable
+fun AddScreenPreview() {
+    val context = LocalContext.current
+    val dataBase = remember {
+        Room.databaseBuilder(
+            context.applicationContext,
+            MascotaDatabase::class.java,
+            "veterinaria_database"
+        ).build()
+
+    }
+    val navController = rememberNavController()
+    val mascotaRepository = remember { RepositoryMascota(dataBase.mascotaDao()) }
+    val addViewModel = remember { AddViewModel(mascotaRepository) }
+    AddScreen(viewModel = addViewModel, navController = navController)
+}

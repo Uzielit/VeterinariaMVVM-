@@ -8,33 +8,11 @@ import kotlin.jvm.java
 
 
 //Base de datos
-@Database(entities = [Mascota::class], version = 2)
+@Database(entities = [Mascota::class], version = 1)
 abstract class MascotaDatabase : RoomDatabase() {
 
-    // Provee el DAO para ser usado por el Repositorio
+
     abstract fun mascotaDao(): MascotaDao
 
-    // companion object permite crear un singleton de la base de datos
-    // para evitar tener múltiples instancias.
-    companion object {
-        @Volatile
-        private var INSTANCE: MascotaDatabase? = null
 
-        fun getDatabase(context: Context): MascotaDatabase{
-            // Retorna la instancia si ya existe,
-            // si no, la crea de forma segura (synchronized).
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    MascotaDatabase::class.java,
-                    "veterinaria_database"
-                )
-                    // la creará de nuevo con la nueva estructura.
-                    .fallbackToDestructiveMigration()
-                    .build()
-                INSTANCE = instance
-                instance
-            }
-        }
-    }
 }
